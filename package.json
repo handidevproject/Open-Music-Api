@@ -1,5 +1,5 @@
 {
-  "name": "notes-app-back-end",
+  "name": "open-music-back-end",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,6 +7,8 @@
     "start:prod": "NODE_ENV=production node ./src/server.js",
     "start:dev": "nodemon ./src/server.js",
     "lint": "eslint ./src",
+    "migrate:up": "node-pg-migrate up -v",
+    "migrate:down": "node-pg-migrate down",
     "migrate": "node-pg-migrate"
   },
   "keywords": [],
@@ -21,10 +23,10 @@
   "dependencies": {
     "@hapi/hapi": "^21.3.2",
     "auto-bind": "^4.0.0",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.5.0",
     "joi": "^17.13.3",
     "nanoid": "^3.1.20",
-    "node-pg-migrate": "^7.7.1",
-    "pg": "^8.13.0"
+    "node-pg-migrate": "^7.9.1",
+    "pg": "^8.15.5"
   }
 }
