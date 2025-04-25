@@ -10,7 +10,7 @@ const AlbumsService = require("./services/postgres/AlbumsService");
 
 // TODO HANDY 2024-11-19 : Songs
 const songs = require("./api/songs");
-const SongsValidator = require("./validator/songs");
+const songsValidator = require("./validator/songs");
 const SongsService = require("./services/postgres/SongsService");
 
 const ClientError = require("./exceptions/ClientError");
@@ -22,6 +22,7 @@ const init = async () => {
   const server = Hapi.server({
     port: process.env.PORT,
     host: process.env.HOST,
+    debug: { request: ["error"] }, // Aktifkan debug untuk error
     routes: {
       cors: {
         origin: ["*"],
@@ -34,16 +35,16 @@ const init = async () => {
       {
         plugin: albums,
         options: {
-          service: albumsService,
-          songsService: songsService,
-          albumsValidator: albumsValidator,
+          AlbumsService: albumsService,
+          SongsService: songsService,
+          AlbumsValidator: albumsValidator,
         },
       },
       {
         plugin: songs,
         options: {
-          service: songsService,
-          validator: SongsValidator,
+          SongsService: songsService,
+          SongsValidator: songsValidator,
         },
       },
     ]);
@@ -51,17 +52,33 @@ const init = async () => {
     server.ext("onPreResponse", (request, h) => {
       // mendapatkan konteks response dari request
       const { response } = request;
+      console.log(response);
+      if (response instanceof Error) {
+        // penanganan client error secara internal.
+        if (response instanceof ClientError) {
+          const newResponse = h.response({
+            status: "fail",
+            message: response.message,
+          });
+          newResponse.code(response.statusCode);
+          return newResponse;
+        }
 
-      // penanganan client error secara internal.
-      if (response instanceof ClientError) {
+        // mempertahankan penanganan client error oleh hapi secara native, seperti 404, etc.
+        if (!response.isServer) {
+          return h.continue;
+        }
+
+        // penanganan server error sesuai kebutuhan
         const newResponse = h.response({
-          status: "fail",
-          message: response.message,
+          status: "error",
+          message: "terjadi kegagalan pada server kami",
         });
-        newResponse.code(response.statusCode);
+        newResponse.code(500);
         return newResponse;
       }
 
+      // jika bukan error, lanjutkan dengan response sebelumnya (tanpa terintervensi)
       return h.continue;
     });
   } catch (err) {

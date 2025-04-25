@@ -1,41 +1,66 @@
 const autoBind = require("auto-bind");
 
 class AlbumsHandler {
-  constructor(service, songsService, validator) {
-    this._service = service; // Pastikan konsisten menggunakan _service
-    this._songsService = songsService; // Pastikan konsisten menggunakan _service
-    this._validator = validator;
+  constructor(AlbumsService, SongsService, AlbumsValidator) {
+    // console.log("AlbumsHandler constructor called with:", {
+    //   AlbumsService,
+    //   SongsService,
+    //   AlbumsValidator,
+    // });
+    this._albumsService = AlbumsService;
+    this._songsService = SongsService;
+    this._albumsValidator = AlbumsValidator;
+
+    this.postAlbumHandler = this.postAlbumHandler.bind(this);
+    this.getAlbumsHandler = this.getAlbumsHandler.bind(this);
+    this.getAlbumByIdHandler = this.getAlbumByIdHandler.bind(this);
+    this.putAlbumByIdHandler = this.putAlbumByIdHandler.bind(this);
+    this.deleteAlbumByIdHandler = this.deleteAlbumByIdHandler.bind(this);
+
     autoBind(this);
   }
 
   async postAlbumHandler(request, h) {
-    console.log("postAlbumHandler payload:", request.payload);
+    try {
+      console.log("postAlbumHandler payload:", request.payload);
 
-    // Validasi payload
-    this._validator.validateAlbumsPayload(request.payload);
+      // Validasi payload
+      this._albumsValidator.validateAlbumsPayload(request.payload);
 
-    // Tambahkan album menggunakan service
-    const albumId = await this._service.addAlbum(request.payload); // Gunakan this._service di sini
+      // Tambahkan album menggunakan service
+      const albumId = await this._albumsService.addAlbum(request.payload); // Pastikan nama method service konsisten
 
-    console.log("albumId payload:", albumId);
+      console.log("albumId payload:", albumId);
 
-    // Response berhasil
-    const response = h.response({
+      // Response berhasil
+      const response = h.response({
+        status: "success",
+        message: "Album berhasil ditambahkan",
+        data: { albumId },
+      });
+      response.code(201);
+      return response;
+    } catch (error) {
+      console.error("Error in postAlbumHandler:", error);
+      throw error;
+    }
+  }
+
+  async getAlbumsHandler() {
+    const albums = await this._albumsService.getAlbums();
+
+    return {
       status: "success",
-      message: "Album berhasil ditambahkan",
       data: {
-        albumId,
+        albums,
       },
-    });
-
-    response.code(201); // Status HTTP untuk Created
-    return response;
+    };
   }
 
   async getAlbumByIdHandler(request, h) {
     const { id } = request.params;
 
-    const album = await this._service.getAlbumById(id);
+    const album = await this._albumsService.getAlbumById(id);
     album.songs = await this._songsService.getSongByAlbumId(id);
     return {
       status: "success",
