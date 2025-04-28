@@ -23,7 +23,7 @@ const init = async () => {
   const server = Hapi.server({
     port: process.env.PORT,
     host: process.env.HOST,
-    debug: { request: ["error"] }, // Aktifkan debug untuk error
+    //debug: { request: ["error"] }, // Aktifkan debug untuk error
     routes: {
       cors: {
         origin: ["*"],
