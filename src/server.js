@@ -14,6 +14,7 @@ const songsValidator = require("./validator/songs");
 const SongsService = require("./services/postgres/SongsService");
 
 const ClientError = require("./exceptions/ClientError");
+const NotFoundError = require("./exceptions/NotFoundError");
 
 const init = async () => {
   const albumsService = new AlbumsService();
@@ -50,11 +51,10 @@ const init = async () => {
     ]);
 
     server.ext("onPreResponse", (request, h) => {
-      // mendapatkan konteks response dari request
       const { response } = request;
-      console.log(response);
+
       if (response instanceof Error) {
-        // penanganan client error secara internal.
+        // Client error buatan sendiri
         if (response instanceof ClientError) {
           const newResponse = h.response({
             status: "fail",
@@ -72,7 +72,7 @@ const init = async () => {
         // penanganan server error sesuai kebutuhan
         const newResponse = h.response({
           status: "error",
-          message: "terjadi kegagalan pada server kami",
+          message: "Terjadi kegagalan pada server kami.",
         });
         newResponse.code(500);
         return newResponse;
