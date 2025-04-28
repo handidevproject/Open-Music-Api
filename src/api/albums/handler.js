@@ -63,7 +63,7 @@ class AlbumsHandler {
     };
   }
 
-  async putAlbumByIdHandler(request) {
+  async putAlbumByIdHandler(request, h) {
     this._albumsValidator.validateAlbumsPayload(request.payload);
     const { id } = request.params;
 
