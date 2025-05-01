@@ -59,15 +59,24 @@ class SongsService {
       conditions.push(`performer ILIKE $${values.length}`);
     }
 
+    // Menambahkan kondisi WHERE hanya jika ada parameter yang diberikan
     const whereClause =
       conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
+
+    // Menyusun query yang akan dijalankan
     const query = {
       text: baseQuery + whereClause,
       values,
     };
 
-    const result = await this._pool.query(query);
-    return result.rows;
+    try {
+      const result = await this._pool.query(query);
+      return result.rows;
+    } catch (error) {
+      // Menangani error jika terjadi kesalahan dalam query
+      console.error("Error executing query:", error);
+      throw new InvariantError("Error executing database query"); // Lemparkan error lebih jelas
+    }
   }
 
   async getSongById(id) {
