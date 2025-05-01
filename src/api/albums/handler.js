@@ -23,8 +23,6 @@ class AlbumsHandler {
       // Tambahkan album menggunakan service
       const albumId = await this._albumsService.addAlbum(request.payload); // Pastikan nama method service konsisten
 
-      console.log("albumId payload:", albumId);
-
       // Response berhasil
       const response = h.response({
         status: "success",
