@@ -33,6 +33,18 @@ class UserService {
     return result.rows[0].id;
   }
 
+  async getUserByUsername(username) {
+    const sql = `
+    SELECT id, username, fullname
+    FROM users
+    WHERE username ILIKE $1
+  `;
+    const params = [`%${username}%`];
+
+    const { rows } = await this._pool.query(sql, params);
+    return rows;
+  }
+
   async verifyNewUsername(username) {
     const query = {
       text: "SELECT username FROM users WHERE username = $1",
@@ -41,13 +53,11 @@ class UserService {
 
     const result = await this._pool.query(query);
 
-    if (result.rowCount) {
+    if (result.rowCount > 0) {
       throw new InvariantError(
         "Gagal menambahkan user. Username sudah digunakan."
       );
     }
-
-    return result.rows[0];
   }
 
   async getUserById(userId) {

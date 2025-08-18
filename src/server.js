@@ -26,11 +26,27 @@ const AuthenticationsService = require("./services/postgres/AuthenticationsServi
 const TokenManager = require("./tokenize/TokenManager");
 const AuthenticationsValidator = require("./validator/authentications");
 
+// Playlists
+const playlists = require("./api/playlists");
+const playlistsValidator = require("./validator/playlists");
+const PlaylistsService = require("./services/postgresql/PlaylistsService");
+const PlaylistsSongsService = require("./services/postgresql/PlaylistsSongsService");
+const PlaylistsSongsActivitiesService = require("./services/postgresql/PlaylistsSongsActivitiesService");
+
+// Collaborations
+const collaborations = require("./api/collaborations");
+const CollaborationsValidator = require("./validator/collaborations");
+const CollaborationsService = require("./services/postgresql/CollaborationsService");
+
 const init = async () => {
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
+  const collaborationsService = new CollaborationsService();
+  const playlistsService = new PlaylistsService(collaborationsService);
+  const playlistsSongsService = new PlaylistsSongsService();
+  const playlistsSongsActivitiesService = new PlaylistsSongsActivitiesService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -98,6 +114,23 @@ const init = async () => {
           usersService,
           tokenManager: TokenManager,
           validator: AuthenticationsValidator,
+        },
+      },
+      {
+        plugin: playlists,
+        options: {
+          PlaylistsService: playlistsService,
+          PlaylistsSongsService: playlistsSongsService,
+          PlaylistsSongsActivitiesService: playlistsSongsActivitiesService,
+          PlaylistsValidator: playlistsValidator,
+        },
+      },
+      {
+        plugin: collaborations,
+        options: {
+          CollaborationsService: collaborationsService,
+          PlaylistsService: playlistsService,
+          CollaborationsValidator: CollaborationsValidator,
         },
       },
     ]);
