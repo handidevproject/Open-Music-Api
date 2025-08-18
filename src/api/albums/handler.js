@@ -2,39 +2,30 @@ const autoBind = require("auto-bind");
 
 class AlbumsHandler {
   constructor(AlbumsService, SongsService, AlbumsValidator) {
-    // console.log("AlbumsHandler constructor called with:", {
-    //   AlbumsService,
-    //   SongsService,
-    //   AlbumsValidator,
-    // });
     this._albumsService = AlbumsService;
     this._songsService = SongsService;
     this._albumsValidator = AlbumsValidator;
+
     autoBind(this);
   }
 
   async postAlbumHandler(request, h) {
-    try {
-      console.log("postAlbumHandler payload:", request.payload);
+    console.log("postAlbumHandler payload:", request.payload);
 
-      // Validasi payload
-      this._albumsValidator.validateAlbumsPayload(request.payload);
+    // Validasi payload
+    this._albumsValidator.validateAlbumsPayload(request.payload);
 
-      // Tambahkan album menggunakan service
-      const albumId = await this._albumsService.addAlbum(request.payload); // Pastikan nama method service konsisten
+    // Tambahkan album menggunakan service
+    const albumId = await this._albumsService.addAlbum(request.payload); // Pastikan nama method service konsisten
 
-      // Response berhasil
-      const response = h.response({
-        status: "success",
-        message: "Album berhasil ditambahkan",
-        data: { albumId },
-      });
-      response.code(201);
-      return response;
-    } catch (error) {
-      console.error("Error in postAlbumHandler:", error);
-      throw error;
-    }
+    // Response berhasil
+    const response = h.response({
+      status: "success",
+      message: "Album berhasil ditambahkan",
+      data: { albumId },
+    });
+    response.code(201);
+    return response;
   }
 
   async getAlbumsHandler() {

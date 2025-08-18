@@ -1,11 +1,13 @@
+const { nanoid } = require("nanoid");
 const { Pool } = require("pg");
 // const { mapDBToModelUser } = require('../../utils/users');
 
 const bcrypt = require("bcrypt");
 const InvariantError = require("../../exceptions/InvariantError");
 const NotFoundError = require("../../exceptions/NotFoundError");
-// const AuthenticationError = require('../../exceptions/AuthenticationError');
 const AuthenticationError = require("../../exceptions/AuthenticationError");
+
+// const AuthenticationError = require('../../exceptions/AuthenticationError');
 
 class UserService {
   constructor() {
@@ -86,3 +88,5 @@ class UserService {
     return id;
   }
 }
+
+module.exports = UserService;
