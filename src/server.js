@@ -29,14 +29,14 @@ const AuthenticationsValidator = require("./validator/authentications");
 // Playlists
 const playlists = require("./api/playlists");
 const playlistsValidator = require("./validator/playlists");
-const PlaylistsService = require("./services/postgresql/PlaylistsService");
-const PlaylistsSongsService = require("./services/postgresql/PlaylistsSongsService");
-const PlaylistsSongsActivitiesService = require("./services/postgresql/PlaylistsSongsActivitiesService");
+const PlaylistsService = require("./services/postgres/PlaylistsService");
+const PlaylistsSongsService = require("./services/postgres/PlaylistsSongsService");
+const PlaylistsSongsActivitiesService = require("./services/postgres/PlaylistsSongsActivitiesService");
 
 // Collaborations
 const collaborations = require("./api/collaborations");
 const CollaborationsValidator = require("./validator/collaborations");
-const CollaborationsService = require("./services/postgresql/CollaborationsService");
+const CollaborationsService = require("./services/postgres/CollaborationsService");
 
 const init = async () => {
   const albumsService = new AlbumsService();
