@@ -110,10 +110,10 @@ const init = async () => {
       {
         plugin: authentications,
         options: {
-          authenticationsService,
-          usersService,
-          tokenManager: TokenManager,
-          validator: AuthenticationsValidator,
+          AuthenticationsService: authenticationsService,
+          UsersService: usersService,
+          TokenManager: TokenManager,
+          AuthenticationsValidator: AuthenticationsValidator,
         },
       },
       {
@@ -137,6 +137,7 @@ const init = async () => {
 
     server.ext("onPreResponse", (request, h) => {
       const { response } = request;
+      console.log(`masuk ke onPreResponse: ${response}`);
 
       if (response instanceof ClientError) {
         const newResponse = h.response({
