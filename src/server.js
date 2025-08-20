@@ -137,7 +137,7 @@ const init = async () => {
 
     server.ext("onPreResponse", (request, h) => {
       const { response } = request;
-      console.log(`masuk ke onPreResponse: ${response}`);
+      console.log("masuk ke onPreResponse:", response);
 
       if (response instanceof ClientError) {
         const newResponse = h.response({
@@ -147,7 +147,8 @@ const init = async () => {
         newResponse.code(response.statusCode);
         return newResponse;
       }
-      return response.continue || response;
+
+      return h.continue;
     });
   } catch (err) {
     console.error("Error registering plugin:", err);
