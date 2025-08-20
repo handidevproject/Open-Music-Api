@@ -81,7 +81,7 @@ const init = async () => {
         return {
           isValid: true,
           credentials: {
-            id: artifacts.decoded.payload.userId, // <- ganti ke userId
+            id: artifacts.decoded.payload.userId, 
           },
         };
       },
