@@ -38,8 +38,6 @@ class AlbumsService {
       throw new NotFoundError("Album tidak ditemukan");
     }
 
-    console.log("resultAlbum.rows:", resultAlbum.rows);
-
     return resultAlbum.rows.map(mapDBToModelAlbum)[0];
   }
 

@@ -77,11 +77,10 @@ const init = async () => {
         maxAgeSec: process.env.ACCESS_TOKEN_AGE,
       },
       validate: (artifacts) => {
-        console.log("JWT artifacts:", artifacts.decoded.payload);
         return {
           isValid: true,
           credentials: {
-            id: artifacts.decoded.payload.userId, 
+            id: artifacts.decoded.payload.userId,
           },
         };
       },
@@ -140,7 +139,6 @@ const init = async () => {
 
     server.ext("onPreResponse", (request, h) => {
       const { response } = request;
-      console.log("masuk ke onPreResponse:", response);
 
       if (response instanceof ClientError) {
         const newResponse = h.response({
