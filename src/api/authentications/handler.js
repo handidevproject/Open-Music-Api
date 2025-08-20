@@ -42,9 +42,10 @@ class AuthenticationsHandler {
     this._validator.validatePutAuthenticationPayload(request.payload);
 
     const { refreshToken } = request.payload;
+    console.log("putAuthenticationHandler: ", refreshToken);
     await this._authenticationsService.verifyRefreshToken(refreshToken);
     const { id } = this._tokenManager.verifyRefreshToken(refreshToken);
-
+    console.log("id: ", id);
     const accessToken = this._tokenManager.generateAccessToken({ id });
     return {
       status: "success",
