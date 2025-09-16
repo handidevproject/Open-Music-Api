@@ -29,7 +29,7 @@ class AlbumsService {
 
     async getAlbumById(id) {
         const queryAlbum = {
-            text: "SELECT id, name, year,created_at, updated_at FROM albums WHERE id = $1",
+            text: "SELECT id, name, year,created_at, updated_at, cover_url FROM albums WHERE id = $1",
             values: [id],
         };
 

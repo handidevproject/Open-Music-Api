@@ -13,11 +13,12 @@ class AlbumsHandler {
     }
 
     async postAlbumHandler(request, h) {
-    // Validasi payload
+        // Validasi payload
         this._albumsValidator.validateAlbumsPayload(request.payload);
 
         // Tambahkan album menggunakan service
-        const albumId = await this._albumsService.addAlbum(request.payload); // Pastikan nama method service konsisten
+        // Pastikan nama method service konsisten
+        const albumId = await this._albumsService.addAlbum(request.payload);
 
         // Response berhasil
         const response = h.response({
