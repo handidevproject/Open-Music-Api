@@ -1,9 +1,12 @@
-const mapDBToModelAlbum = ({ id, name, year, created_at, updated_at }) => ({
-  id,
-  name,
-  year,
-  createdAt: created_at,
-  updatedAt: updated_at,
+const mapDBToModelAlbum = ({
+    id, name, year, cover_url, created_at, updated_at,
+}) => ({
+    id,
+    name,
+    year,
+    coverUrl: cover_url,
+    createdAt: created_at,
+    updatedAt: updated_at,
 });
 
 module.exports = { mapDBToModelAlbum };

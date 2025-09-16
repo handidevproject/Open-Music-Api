@@ -3,6 +3,7 @@ const { nanoid } = require("nanoid");
 const InvariantError = require("../../exceptions/InvariantError");
 const NotFoundError = require("../../exceptions/NotFoundError");
 const { mapDBToModelAlbum } = require("../../utils/albums/index");
+const ClientError = require('../../exceptions/ClientError');
 
 class AlbumsService {
     constructor(cacheService) {

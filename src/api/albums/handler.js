@@ -108,10 +108,12 @@ class AlbumsHandler {
 
         const like = await this._albumsService.addLikeAndDislikeAlbum(id, credentialId);
 
-        return h.response({
+        const response = h.response({
             status: 'success',
             message: `Berhasil ${like} Album`,
-        }).code(201);
+        });
+        response.code(201);
+        return response;
     }
 
     async getLikesAlbumByIdhandler(request, h) {
