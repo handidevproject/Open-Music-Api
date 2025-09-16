@@ -1,0 +1,28 @@
+{
+  "env": {
+    "commonjs": true,
+    "es2021": true,
+    "node": true
+  },
+  "extends": "airbnb-base",
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
+  "rules": {
+    "no-console": "off",
+    "indent": ["error", 4],
+    "no-underscore-dangle": ["error", {
+      "allow": ["_exports"],
+      "allowAfterThis": true,
+      "allowAfterSuper": true
+    }],
+    "camelcase": "off",
+    "import/no-extraneous-dependencies": ["error", {
+      "devDependencies": [
+        "**/*.test.js",
+        "**/*.spec.js",
+        "**/tests/**"
+      ]
+    }]
+  }
+}

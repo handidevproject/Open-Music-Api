@@ -1,6 +1,5 @@
 const { nanoid } = require("nanoid");
 const { Pool } = require("pg");
-// const { mapDBToModelUser } = require('../../utils/users');
 
 const bcrypt = require("bcrypt");
 const InvariantError = require("../../exceptions/InvariantError");

@@ -1,162 +1,190 @@
 // mengimpor dotenv dan menjalankan konfigurasinya
-require("dotenv").config();
+require('dotenv').config();
+const path = require('path');
 
-const Hapi = require("@hapi/hapi");
-const Jwt = require("@hapi/jwt");
+const Hapi = require('@hapi/hapi');
+const Jwt = require('@hapi/jwt');
+// eslint-disable-next-line import/no-extraneous-dependencies
+const Inert = require('@hapi/inert');
 
 // TODO HANDY 2024-11-19 : Albums
-const albums = require("./api/albums");
-const albumsValidator = require("./validator/albums");
-const AlbumsService = require("./services/postgres/AlbumsService");
+const albums = require('./api/albums');
+const albumsValidator = require('./validator/albums');
+const AlbumsService = require('./services/postgres/AlbumsService');
 
 // TODO HANDY 2024-11-19 : Songs
-const songs = require("./api/songs");
-const songsValidator = require("./validator/songs");
-const SongsService = require("./services/postgres/SongsService");
-const ClientError = require("./exceptions/ClientError");
+const songs = require('./api/songs');
+const songsValidator = require('./validator/songs');
+const SongsService = require('./services/postgres/SongsService');
+const ClientError = require('./exceptions/ClientError');
 
 // Users
-const users = require("./api/users");
-const UsersService = require("./services/postgres/UsersService");
-const UsersValidator = require("./validator/users");
+const users = require('./api/users');
+const UsersService = require('./services/postgres/UsersService');
+const UsersValidator = require('./validator/users');
 
 // Authentications
-const authentications = require("./api/authentications");
-const AuthenticationsService = require("./services/postgres/AuthenticationsService");
-const TokenManager = require("./tokenize/TokenManager");
-const AuthenticationsValidator = require("./validator/authentications");
+const authentications = require('./api/authentications');
+const AuthenticationsService = require('./services/postgres/AuthenticationsService');
+const TokenManager = require('./tokenize/TokenManager');
+const AuthenticationsValidator = require('./validator/authentications');
 
 // Playlists
-const playlists = require("./api/playlists");
-const playlistsValidator = require("./validator/playlists");
-const PlaylistsService = require("./services/postgres/PlaylistsService");
-const PlaylistsSongsService = require("./services/postgres/PlaylistsSongsService");
-const PlaylistsSongsActivitiesService = require("./services/postgres/PlaylistsSongsActivitiesService");
+const playlists = require('./api/playlists');
+const playlistsValidator = require('./validator/playlists');
+const PlaylistsService = require('./services/postgres/PlaylistsService');
+const PlaylistsSongsService = require('./services/postgres/PlaylistsSongsService');
+const PlaylistsSongsActivitiesService = require('./services/postgres/PlaylistsSongsActivitiesService');
 
 // Collaborations
-const collaborations = require("./api/collaborations");
-const CollaborationsValidator = require("./validator/collaborations");
-const CollaborationsService = require("./services/postgres/CollaborationsService");
+const collaborations = require('./api/collaborations');
+const collaborationsValidator = require('./validator/collaborations');
+const CollaborationsService = require('./services/postgres/CollaborationsService');
+
+// Exports
+const _exports = require('./api/exports');
+const ProducerService = require('./services/rabbitmq/ProducerService');
+const ExportsValidator = require('./validator/exports');
+
+// Uploads
+const StorageService = require('./services/storage/StorageService');
+const UploadsValidator = require('./validator/uploads');
+
+// Cache
+const CacheService = require('./services/redis/CacheService');
 
 const init = async () => {
-  const albumsService = new AlbumsService();
-  const songsService = new SongsService();
-  const usersService = new UsersService();
-  const authenticationsService = new AuthenticationsService();
-  const collaborationsService = new CollaborationsService();
-  const playlistsService = new PlaylistsService(collaborationsService);
-  const playlistsSongsService = new PlaylistsSongsService();
-  const playlistsSongsActivitiesService = new PlaylistsSongsActivitiesService();
+    const cacheService = new CacheService();
+    const albumsService = new AlbumsService(cacheService);
+    const songsService = new SongsService();
+    const usersService = new UsersService();
+    const authenticationsService = new AuthenticationsService();
+    const collaborationsService = new CollaborationsService();
+    const playlistsService = new PlaylistsService(collaborationsService);
+    const playlistsSongsService = new PlaylistsSongsService();
+    const playlistsSongsActivitiesService = new PlaylistsSongsActivitiesService();
+    const storageService = new StorageService(path.resolve(__dirname, 'api/albums/file/covers'));
 
-  const server = Hapi.server({
-    port: process.env.PORT,
-    host: process.env.HOST,
-    //debug: { request: ["error"] }, // Aktifkan debug untuk error
-    routes: {
-      cors: {
-        origin: ["*"],
-      },
-    },
-  });
-
-  try {
-    // registrasi plugin eksternal
-    await server.register([
-      {
-        plugin: Jwt,
-      },
-    ]);
-
-    // mendefinisikan strategy autentikasi jwt
-    server.auth.strategy("openmusic_jwt", "jwt", {
-      keys: process.env.ACCESS_TOKEN_KEY,
-      verify: {
-        aud: false,
-        iss: false,
-        sub: false,
-        maxAgeSec: process.env.ACCESS_TOKEN_AGE,
-      },
-      validate: (artifacts) => {
-        return {
-          isValid: true,
-          credentials: {
-            id: artifacts.decoded.payload.userId,
-          },
-        };
-      },
+    const server = Hapi.server({
+        port: process.env.PORT,
+        host: process.env.HOST,
+        // debug: { request: ["error"] }, // Aktifkan debug untuk error
+        routes: {
+            cors: {
+                origin: ['*'],
+            },
+        },
     });
 
-    await server.register([
-      {
-        plugin: albums,
-        options: {
-          AlbumsService: albumsService,
-          SongsService: songsService,
-          AlbumsValidator: albumsValidator,
-        },
-      },
-      {
-        plugin: songs,
-        options: {
-          SongsService: songsService,
-          SongsValidator: songsValidator,
-        },
-      },
-      {
-        plugin: users,
-        options: {
-          service: usersService,
-          validator: UsersValidator,
-        },
-      },
-      {
-        plugin: authentications,
-        options: {
-          AuthenticationsService: authenticationsService,
-          UsersService: usersService,
-          TokenManager: TokenManager,
-          AuthenticationsValidator: AuthenticationsValidator,
-        },
-      },
-      {
-        plugin: playlists,
-        options: {
-          PlaylistsService: playlistsService,
-          PlaylistsSongsService: playlistsSongsService,
-          PlaylistsSongsActivitiesService: playlistsSongsActivitiesService,
-          PlaylistsValidator: playlistsValidator,
-        },
-      },
-      {
-        plugin: collaborations,
-        options: {
-          CollaborationsService: collaborationsService,
-          PlaylistsService: playlistsService,
-          CollaborationsValidator: CollaborationsValidator,
-        },
-      },
-    ]);
+    try {
+        // registrasi plugin eksternal
+        await server.register([
+            {
+                plugin: Jwt,
+            },
+            {
+                plugin: Inert,
+            },
+        ]);
 
-    server.ext("onPreResponse", (request, h) => {
-      const { response } = request;
-
-      if (response instanceof ClientError) {
-        const newResponse = h.response({
-          status: "fail",
-          message: response.message,
+        // mendefinisikan strategy autentikasi jwt
+        server.auth.strategy('openmusic_jwt', 'jwt', {
+            keys: process.env.ACCESS_TOKEN_KEY,
+            verify: {
+                aud: false,
+                iss: false,
+                sub: false,
+                maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+            },
+            validate: (artifacts) => ({
+                isValid: true,
+                credentials: {
+                    id: artifacts.decoded.payload.userId,
+                },
+            }),
         });
-        newResponse.code(response.statusCode);
-        return newResponse;
-      }
 
-      return h.continue;
-    });
-  } catch (err) {
-    console.error("Error registering plugin:", err);
-  }
+        await server.register([
+            {
+                plugin: albums,
+                options: {
+                    AlbumsService: albumsService,
+                    SongsService: songsService,
+                    AlbumsValidator: albumsValidator,
+                    StorageService: storageService,
+                    UploadsValidator,
+                },
+            },
+            {
+                plugin: songs,
+                options: {
+                    SongsService: songsService,
+                    SongsValidator: songsValidator,
+                },
+            },
+            {
+                plugin: users,
+                options: {
+                    service: usersService,
+                    validator: UsersValidator,
+                },
+            },
+            {
+                plugin: authentications,
+                options: {
+                    AuthenticationsService: authenticationsService,
+                    UsersService: usersService,
+                    TokenManager,
+                    AuthenticationsValidator,
+                },
+            },
+            {
+                plugin: playlists,
+                options: {
+                    PlaylistsService: playlistsService,
+                    PlaylistsSongsService: playlistsSongsService,
+                    PlaylistsSongsActivitiesService: playlistsSongsActivitiesService,
+                    PlaylistsValidator: playlistsValidator,
+                },
+            },
+            {
+                plugin: collaborations,
+                options: {
+                    CollaborationsService: collaborationsService,
+                    PlaylistsService: playlistsService,
+                    CollaborationsValidator: collaborationsValidator,
+                },
+            },
+            {
+                plugin: _exports,
+                options: {
+                    ProducerService,
+                    PlaylistsService: playlistsService,
+                    ExportsValidator,
+                },
+            },
+        ]);
 
-  await server.start();
-  console.log(`Server berjalan pada ${server.info.uri}`);
+        server.ext('onPreResponse', (request, h) => {
+            const { response } = request;
+            /// console.log(response);
+            if (response instanceof ClientError) {
+                const newResponse = h.response({
+                    status: 'fail',
+                    message: response.message,
+                });
+                newResponse.code(response.statusCode);
+                return newResponse;
+            }
+
+            return h.continue;
+        });
+    } catch (err) {
+        console.error('Error registering plugin:', err);
+    }
+
+    await server.start();
+    console.log(`Server berjalan pada ${server.info.uri}`);
 };
 
 init();
