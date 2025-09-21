@@ -13,7 +13,7 @@ class CacheService {
             console.log(error);
         });
 
-        this._client.connect().then(r => {
+        this._client.connect().then((r) => {
 
         });
     }
