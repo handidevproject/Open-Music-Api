@@ -55,8 +55,6 @@ class PlaylistsSongsService {
             values: [playlistId],
         };
 
-        console.log(`getSongsFromPlaylist: ${this._pool()}`);
-
         const playlistResult = await this._pool.query(playlistQuery);
         const userResult = await this._pool.query(userQuery);
         const songResult = await this._pool.query(songQuery);

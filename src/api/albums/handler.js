@@ -41,7 +41,7 @@ class AlbumsHandler {
         };
     }
 
-    async getAlbumByIdHandler(request, h) {
+    async getAlbumByIdHandler(request) {
         const { id } = request.params;
 
         const album = await this._albumsService.getAlbumById(id);
