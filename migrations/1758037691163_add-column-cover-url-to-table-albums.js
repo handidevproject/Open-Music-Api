@@ -9,12 +9,12 @@ exports.shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
-    pgm.addColumns('albums', {
-        cover_url: {
-            type: 'TEXT',
-            default: null,
-        },
-    });
+  pgm.addColumns("albums", {
+    cover_url: {
+      type: "TEXT",
+      default: null,
+    },
+  });
 };
 
 /**
@@ -22,4 +22,6 @@ exports.up = (pgm) => {
  * @param run {() => void | undefined}
  * @returns {Promise<void> | void}
  */
-exports.down = (pgm) => {};
+exports.down = (pgm) => {
+  pgm.dropColumns("albums", ["cover_url"]);
+};
